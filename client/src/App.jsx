@@ -6,6 +6,8 @@ import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router';
 import Header from './components/Header';
 import LoginForm from './components/LoginForm';
 import GameRulesCard from './components/RulesDisplayer';
+import SetupPage from './components/SetupPage';
+
 
 function App() {
   const [user, setUser] = useState()
@@ -21,6 +23,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Header />}>
              <Route index element={<GameRulesCard />} />
+             <Route path='setup' element={<SetupPage />} />
           </Route>
 
         <Route path = '/login' element={<LoginForm userSetter = {setLogedInUser} />}></Route>

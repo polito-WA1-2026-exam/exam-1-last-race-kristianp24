@@ -21,7 +21,7 @@ function LoginForm(props) {
       const user = await doLogin(email, pass);
       props.userSetter(user);
       console.log(user);
-      navigate('/');
+      navigate('/setup');
     } catch(err) {
       setAlert(true);
     }
@@ -37,7 +37,7 @@ function LoginForm(props) {
           <div className="text-center mb-4">
             {alert ? (
               <Alert key='danger' variant="danger" className="py-2 small"> 
-                Your credentials do not match! 
+                Your credentials do not match
               </Alert>
             ) : (
               <h5 className="text-secondary fw-normal">Introduce your data to login</h5>

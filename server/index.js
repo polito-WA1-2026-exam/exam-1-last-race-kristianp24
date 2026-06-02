@@ -3,7 +3,7 @@ import express from "express";
 import passport from "passport";
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import { check_user_password } from "./db_queries.js";
+import { check_user_password, retrieve_connections_and_lines, retrieve_stations } from "./db_queries.js";
 import cors from "cors";
 
 // init express
@@ -71,7 +71,16 @@ app.delete("/api/sessions/current", (req, res) => {
   });
 });
 
-
+// GET /api/stations
+app.get("/api/stations", async (req, res) => {
+  try {
+    const stations = await retrieve_stations();
+    
+    return res.json(stations);
+  } catch (err) {
+    return res.status(500).json({ error: err.message || err });
+  }
+});
 
 // activate the server
 app.listen(port, () => {

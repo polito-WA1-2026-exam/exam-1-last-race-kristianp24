@@ -10,7 +10,7 @@ function GameRulesCard() {
   return (
     <Container className="mt-4">
       <Row className="justify-content-center">
-        <Col xs={12} sm={4} md={5} lg={10}> 
+        <Col md={10}> 
           
           <Card className="border border-secondary-subtle rounded-3 overflow-hidden shadow-sm h-100">
             <Card.Body className="p-4 d-flex flex-column justify-content-between">
