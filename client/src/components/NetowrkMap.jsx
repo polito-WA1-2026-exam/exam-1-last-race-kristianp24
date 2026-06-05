@@ -5,17 +5,19 @@ import Alert from 'react-bootstrap/Alert';
 
 
 const staticlinePaths = [
-  { id: 'm5', color: '#9b59b6', d: 'M 200,60 L 200,130 L 200,200 L 200,270' },
-  { id: 'm2', color: '#2ecc71', d: 'M 500,270 L 200,270 L 200,370 L 200,440' },
-  { id: 'm3', color: '#f1c40f', d: 'M 500,130 L 500,270 L 500,340 L 500,410 M 200,200 L500,270' },
-  { id: 'm4', color: '#0066ff', d: 'M 200,200 L 640,200 L 640,410 L 500,410 L 500,480 L 500,550' }
+  { id: 'm5', color: '#9b59b6', d: 'M 313,60 L 100,130 L 200,200 L 200,270' },
+  { id: 'm2', color: '#2ecc71', d: 'M 500,270 L 200,270 L 395,370 L 200,440' },
+  { id: 'm3', color: '#f1c40f', d: 'M 640, 60 L 400,130 L 500,270 L 600,340 L 500,410 M 200,200 L500,270' },
+  { id: 'm4', color: '#0066ff', d: 'M 200,200 L 640,200 L 640,410 L 500,410 L 500,480 L 320,550' }
 ];
 
-function NetworkMap() {
-
+function NetworkMap(props) {
   const [stations, setStations] = useState([]);
   const [linePaths, setLinePaths] = useState([]);
   const [alert, setAlert] = useState(false)
+
+  const showLines = props && props.lines !== undefined ? props.lines : true;  
+ 
   useEffect(() => {
     const loadMapData = async () => {
       const data = await fetchStations();
@@ -50,7 +52,7 @@ function NetworkMap() {
 
       <svg viewBox="0 0 800 620" style={styles.svg}>
         <g id="metro-lines">
-          {linePaths.map((line) => (
+          {showLines && linePaths.map((line) => (
             <path
               key={line.id}
               d={line.d}

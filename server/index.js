@@ -3,7 +3,7 @@ import express from "express";
 import passport from "passport";
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import { check_user_password, retrieve_connections_and_lines, retrieve_stations } from "./db_queries.js";
+import { retrieve_station, check_user_password, retrieve_connections, retrieve_stations, getNetworkGraph, findValidDestinations } from "./db_queries.js";
 import cors from "cors";
 
 // init express
@@ -18,6 +18,12 @@ const corsOptions = {
   credentials: true
 };
 app.use(cors(corsOptions))
+
+app.use(session({
+  secret: "its a secret!",
+  resave: false,
+  saveUninitialized: false,
+}));
 
 // Set up passport 
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
@@ -44,11 +50,7 @@ const isLoggedIn = (req, res, next) => {
   return res.status(401).json({error: "Not authorized"});
 }
 
-app.use(session({
-  secret: "its a secret!",
-  resave: false,
-  saveUninitialized: false,
-}));
+
 app.use(passport.authenticate("session"));
 
 // POST /api/sessions
@@ -79,6 +81,61 @@ app.get("/api/stations", async (req, res) => {
     return res.json(stations);
   } catch (err) {
     return res.status(500).json({ error: err.message || err });
+  }
+});
+
+// GET /api/connections
+app.get("/api/connections", async(req, res) => {
+  try{
+      const connections = await retrieve_connections()
+      return res.json(connections)
+  }
+  catch (err){
+    return res.status(500).json({ error: err.message || err });
+
+  }
+})
+
+// GET /api/randomStations
+app.get('/api/randomStations', async (req, res) => {
+  try {
+    const graph = await getNetworkGraph();
+    const stations = Object.keys(graph);
+
+    if (stations.length < 4) {
+      console.log(stations)
+      return res.status(500).json({ error: "Network graph is too small." });
+    }
+
+    console.log(graph)
+    let startStation = "";
+    let validDestinations = [];
+
+   
+    while (validDestinations.length === 0) {
+      const randomIndex = Math.floor(Math.random() * stations.length);
+      startStation = stations[randomIndex];
+      
+      validDestinations = findValidDestinations(graph, startStation);
+    }
+
+    const randomDestIndex = Math.floor(Math.random() * validDestinations.length);
+    const destinationStation = validDestinations[randomDestIndex];
+
+    const nameStartStation = await retrieve_station(startStation)
+    const nameEndStation = await retrieve_station(destinationStation)
+
+    return res.json({
+      nameStartStation,
+      nameEndStation,
+      startStation,
+      destinationStation,
+      initialCoins: 20 
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Server error initiating game." });
   }
 });
 
