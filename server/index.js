@@ -152,10 +152,10 @@ app.post('/api/verify-route', async (req, res) => {
     }
 
     const graph = await getNetworkGraph(); 
-    
+
     const isValidResp = await validateRouteWithGraph(submittedRoute, assignedStart, assignedDest, graph);
 
-    if (!isValid.verdict) {
+    if (!isValidResp.verdict) {
       return res.json({ 
         success: false, 
         finalScore: 0, 

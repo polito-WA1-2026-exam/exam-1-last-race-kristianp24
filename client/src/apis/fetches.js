@@ -44,4 +44,29 @@ async function fetchStartEndStations(){
     }
 }
 
-export { fetchStations, fetchStartEndStations, fetchConnections }
+async function checkRoute(selectedConnections, startCity, destCity){
+    try{
+        const response = await fetch('http://localhost:3001/api/verify-route', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                submittedRoute: selectedConnections, 
+                assignedStart: startCity, 
+                assignedDest: destCity 
+            }) 
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+    
+        return await response.json(); 
+
+    }
+    catch(err){
+        return {}
+    }
+}
+
+export { fetchStations, fetchStartEndStations, fetchConnections, checkRoute }
