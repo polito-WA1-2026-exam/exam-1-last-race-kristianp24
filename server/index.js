@@ -3,8 +3,11 @@ import express from "express";
 import passport from "passport";
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import { retrieve_station, check_user_password, retrieve_connections, retrieve_stations, getNetworkGraph, findValidDestinations } from "./db_queries.js";
+import { getStationNameToIdMap, retrieve_station, check_user_password, retrieve_connections, retrieve_stations, getNetworkGraph, findValidDestinations } from "./db_queries.js";
 import cors from "cors";
+import sqlite from "sqlite3";
+import { validateRouteWithGraph } from "./db_queries.js";
+
 
 // init express
 const app = new express();
@@ -96,8 +99,8 @@ app.get("/api/connections", async(req, res) => {
   }
 })
 
-// GET /api/randomStations
-app.get('/api/randomStations', async (req, res) => {
+// GET /api/start-game
+app.get('/api/start-game', async (req, res) => {
   try {
     const graph = await getNetworkGraph();
     const stations = Object.keys(graph);
@@ -136,6 +139,38 @@ app.get('/api/randomStations', async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Server error initiating game." });
+  }
+});
+
+// POST /api/verify-route
+app.post('/api/verify-route', async (req, res) => {
+  try {
+    const { submittedRoute, assignedStart, assignedDest } = req.body;
+    
+    if (!submittedRoute || submittedRoute.length === 0) {
+      return res.json({success:false, finalScore: 0, message: "Validation Failed: The submitted route array is empty or missing" });
+    }
+
+    const graph = await getNetworkGraph(); 
+    
+    const isValidResp = await validateRouteWithGraph(submittedRoute, assignedStart, assignedDest, graph);
+
+    if (!isValid.verdict) {
+      return res.json({ 
+        success: false, 
+        finalScore: 0, 
+        message: isValidResp.message
+      });
+    }
+
+    return res.json({ 
+      success: isValidResp.verdict, 
+      message: isValidResp.message
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

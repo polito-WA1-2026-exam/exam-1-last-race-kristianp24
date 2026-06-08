@@ -24,7 +24,7 @@ function PlayPage(){
         loadConnections();
     }, [])
 
-    async function handleClick(ev){
+    async function handleClickStart(ev){
         ev.preventDefault()
         try{
             const response = await fetchStartEndStations()
@@ -106,7 +106,7 @@ function PlayPage(){
                         variant="primary" 
                         size="lg" 
                         className="px-5 py-2 fw-bold" 
-                        onClick={(ev) => handleClick(ev)}
+                        onClick={(ev) => handleClickStart(ev)}
                     > 
                         Start Game 
                     </Button>

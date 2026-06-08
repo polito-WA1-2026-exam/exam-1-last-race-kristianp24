@@ -172,4 +172,80 @@ function findValidDestinations(graph, startStation) {
   return validDestinations;
 }
 
-export { check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }
+function getStationNameToIdMap() {
+  
+  return new Promise((resolve, reject) => {
+    const db = new sqlite.Database("db.db", (err) => {
+            if (err) { return reject(err); }
+        })
+
+    db.all("SELECT id, name FROM stations", [], (err, rows) => {
+      db.close()
+      if (err) return reject(err);
+      
+      const nameToIdMap = {};
+      rows.forEach(row => {
+        nameToIdMap[row.name.trim()] = row.id;
+      });
+      resolve(nameToIdMap);
+    });
+  });
+}
+
+async function validateRouteWithGraph(submittedRoute, assignedStart, assignedDest, graph) {
+  
+  if (!submittedRoute || submittedRoute.length === 0) {
+    return {verdict: false, message: "Validation Failed: Submitted route array is empty."};
+  }
+
+  const nameToIdMap = await getStationNameToIdMap();
+  const startId = nameToIdMap[assignedStart.trim()];
+  const destId = nameToIdMap[assignedDest.trim()];
+
+  const parsedSegments = [];
+  for (const segmentStr of submittedRoute) {
+    const parts = segmentStr.split('-');
+    const idA = nameToIdMap[parts[0].trim()];
+    const idB = nameToIdMap[parts[1].trim()];
+    
+    if (!idA || !idB) {
+      return {verdict: false, message: `Validation Failed: Station name inside "${segmentStr}" doesn't exist.`};
+    }
+    parsedSegments.push({ idA, idB, nameA: parts[0], nameB: parts[1] });
+  }
+
+  if (parsedSegments[0].idA !== startId) {
+    return {verdict: false, message: `Validation Failed: Must start at assigned station ID ${startId}`};
+  }
+  if (parsedSegments[parsedSegments.length - 1].idB !== destId) {
+    return {verdict: false, message: `Validation Failed: Must end at assigned station ID ${destId}`};
+  }
+
+  const usedSegments = new Set();
+
+  for (let i = 0; i < parsedSegments.length; i++) {
+    const current = parsedSegments[i];
+
+    if (i > 0 && parsedSegments[i - 1].idB !== current.idA) {
+      return {verdict: false, message:`Validation Failed: Broken route continuity between segments.` };
+    }
+
+    const neighbors = graph[String(current.idA)] || [];
+    
+    if (!neighbors.includes(Number(current.idB)) && !neighbors.includes(String(current.idB))) {
+      return {verdict: false, message:`Validation Failed: Graph says no track link exists between ${current.idA} and ${current.idB}.` };
+    }
+
+    const key1 = `${current.idA}->${current.idB}`;
+    const key2 = `${current.idB}->${current.idA}`;
+    if (usedSegments.has(key1) || usedSegments.has(key2)) {
+      return {verdict: false, message: `Validation Failed: Segment track traversed more than once.`};
+    }
+    usedSegments.add(key1);
+    
+  }
+
+  return {verdict: true, message:"The route is perfectly valid"};
+}
+
+export { getStationNameToIdMap, validateRouteWithGraph, check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }

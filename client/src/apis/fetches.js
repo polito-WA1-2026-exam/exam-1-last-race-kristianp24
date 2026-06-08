@@ -32,7 +32,7 @@ async function fetchConnections(){
 
 async function fetchStartEndStations(){
     try{
-        const response = await fetch('http://localhost:3001/api/randomStations');
+        const response = await fetch('http://localhost:3001/api/start-game');
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
