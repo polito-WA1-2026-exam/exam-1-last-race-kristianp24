@@ -32,8 +32,6 @@ function check_user_password(email, password) {
     })
 }
 
-
-
 function retrieve_stations() {
     return new Promise((resolve, reject) => {
         const db = new sqlite.Database("db.db", (err) => {
@@ -248,4 +246,52 @@ async function validateRouteWithGraph(submittedRoute, assignedStart, assignedDes
   return {verdict: true, message:"The route is perfectly valid"};
 }
 
-export { getStationNameToIdMap, validateRouteWithGraph, check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }
+async function recordScore(userId, score){
+  return new Promise((resolve, reject) => {
+    const db = new sqlite.Database("db.db", (err) => {
+            if (err) { return reject(err); }
+        })
+      
+    const query = `INSERT INTO Games (userID, score) VALUES (?, ?)`
+
+    try{
+        const result = db.run(query, [userId, score])
+        resolve(result)
+    }
+    catch (err){
+      reject({error: err})
+    }
+  })
+}
+
+async function getRandomEvents(numb_events){
+  return new Promise((resolve, reject) => {
+    const db = new sqlite.Database("db.db", (err) => {
+            if (err) { return reject(err); }
+        })
+    
+    const query = `
+        SELECT id, description, effect 
+        FROM Events 
+        ORDER BY RANDOM() 
+        LIMIT ?
+    `;
+
+        db.all(query, [numb_events], (err, rows) => {
+          db.close()
+          if (err)
+            reject({error: err})
+          else{
+            let events = {}
+            for(row of rows){
+              events[row.id] = {description: row.description, effect: row.effect}
+            }
+            resolve(events)
+          }
+        })
+    
+    
+  })
+}
+
+export { getRandomEvents, recordScore,getStationNameToIdMap, validateRouteWithGraph, check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }

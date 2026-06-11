@@ -7,6 +7,8 @@ import NetworkMap from "./NetowrkMap";
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useEffect, useState } from "react";
 import { fetchConnections, fetchStartEndStations, checkRoute } from "../apis/fetches";
+import Alert from 'react-bootstrap/Alert';
+
 
 function PlayPage() {
     const [connections, setConnections] = useState([])
@@ -14,6 +16,8 @@ function PlayPage() {
     const [startStation, setStartStation] = useState("Tap to Start")
     const [endStation, setEndStation] = useState("Tap to Start")
     const [hideButton, setHideButton] = useState(false)
+    const [alert, setAlert] = useState(false)
+
 
 
     useEffect(() => {
@@ -50,7 +54,12 @@ function PlayPage() {
         console.log(selectedConnections)
         try{
             const response = await checkRoute(selectedConnections, startStation, endStation)
-            console.log(response.message)
+            if (response.success){
+                
+            }
+            else{
+                setAlert(true)
+            }
         }
         catch(err){
 

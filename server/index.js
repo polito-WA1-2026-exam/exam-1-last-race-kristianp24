@@ -6,7 +6,7 @@ import session from 'express-session';
 import { getStationNameToIdMap, retrieve_station, check_user_password, retrieve_connections, retrieve_stations, getNetworkGraph, findValidDestinations } from "./db_queries.js";
 import cors from "cors";
 import sqlite from "sqlite3";
-import { validateRouteWithGraph } from "./db_queries.js";
+import { validateRouteWithGraph, recordScore, getRandomEvents } from "./db_queries.js";
 
 
 // init express
@@ -173,6 +173,56 @@ app.post('/api/verify-route', async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// POST /api/users/:id/record-game
+app.post('/api/users/:id/record-score', async (req, res) => {
+  try{
+    const userId = req.params.id
+    const pointsEarned = req.body.pointsEarned
+
+    const result = await recordScore(userId, pointsEarned)
+
+    if (result && result.lastID)
+      return res.json({
+        message: "User added succesfully!"
+      })
+    else
+       return res.status(501).json({
+        message: "An error occured!",
+        error: result.error
+      })
+  }
+  catch(err){
+    return res.json({
+      message: "An error occured in the server!",
+      error: err
+    })
+  }
+})
+
+// GET /api/events
+app.get('/api/events', async (req, res)=> {
+  try{
+    const numberOfEvenets = req.body.numberOfEvenets
+    const result = await getRandomEvents(numberOfEvenets)
+
+    if (result.error){
+      return res.status(501).json({
+        message: "An error occured!",
+        error: result.error
+      })
+    }
+    else{
+      return res.json(result)
+    }
+  }
+  catch(err){
+       return res.status(501).json({
+        message: "An error occured!",
+        error: err
+      })
+  }
+})
 
 // activate the server
 app.listen(port, () => {
