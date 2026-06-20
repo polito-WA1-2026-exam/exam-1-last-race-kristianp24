@@ -174,7 +174,7 @@ app.post('/api/verify-route', async (req, res) => {
   }
 });
 
-// POST /api/users/:id/record-game
+// POST /api/users/:id/record-score
 app.post('/api/users/:id/record-score', async (req, res) => {
   try{
     const userId = req.params.id
@@ -200,8 +200,8 @@ app.post('/api/users/:id/record-score', async (req, res) => {
   }
 })
 
-// GET /api/events
-app.get('/api/events', async (req, res)=> {
+// POST /api/events
+app.post('/api/events', async (req, res)=> {
   try{
     const numberOfEvenets = req.body.numberOfEvenets
     const result = await getRandomEvents(numberOfEvenets)

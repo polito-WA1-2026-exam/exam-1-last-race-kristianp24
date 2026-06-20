@@ -283,7 +283,7 @@ async function getRandomEvents(numb_events){
             reject({error: err})
           else{
             let events = {}
-            for(row of rows){
+            for(const row of rows){
               events[row.id] = {description: row.description, effect: row.effect}
             }
             resolve(events)

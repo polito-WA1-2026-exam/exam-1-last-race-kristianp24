@@ -8,6 +8,7 @@ import LoginForm from './components/LoginForm';
 import GameRulesCard from './components/RulesDisplayer';
 import SetupPage from './components/SetupPage';
 import PlayPage from './components/PlayPage';
+import SubmitPage from './components/SubmitPage';
 
 function App() {
   const [user, setUser] = useState()
@@ -25,6 +26,7 @@ function App() {
              <Route index element={<GameRulesCard />} />
              <Route path='setup' element={<SetupPage />} />
              <Route path='playGame' element={<PlayPage />}></Route>
+             <Route path='submit/:segmentslength' element={<SubmitPage />} />
           </Route>
 
         <Route path = '/login' element={<LoginForm userSetter = {setLogedInUser} />}></Route>

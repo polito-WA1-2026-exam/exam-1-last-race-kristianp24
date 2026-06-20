@@ -8,6 +8,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { useEffect, useState } from "react";
 import { fetchConnections, fetchStartEndStations, checkRoute } from "../apis/fetches";
 import Alert from 'react-bootstrap/Alert';
+import { useNavigate } from "react-router";
 
 
 function PlayPage() {
@@ -17,7 +18,7 @@ function PlayPage() {
     const [endStation, setEndStation] = useState("Tap to Start")
     const [hideButton, setHideButton] = useState(false)
     const [alert, setAlert] = useState(false)
-
+    const navigate = useNavigate()
 
 
     useEffect(() => {
@@ -53,13 +54,18 @@ function PlayPage() {
         ev.preventDefault()
         console.log(selectedConnections)
         try{
-            const response = await checkRoute(selectedConnections, startStation, endStation)
-            if (response.success){
-                
-            }
-            else{
-                setAlert(true)
-            }
+            // const response = await checkRoute(selectedConnections, startStation, endStation)
+            // if (response.success){
+            //     navigate(`/submit/${selectedConnections.length}`)            
+            
+            // }
+           navigate(`/submit/${selectedConnections.length}`, { 
+                state: { connections: selectedConnections } 
+            });      
+        
+            // else{
+            //     setAlert(true)
+            // }
         }
         catch(err){
 

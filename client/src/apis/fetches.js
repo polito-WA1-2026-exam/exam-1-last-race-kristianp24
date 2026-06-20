@@ -69,4 +69,26 @@ async function checkRoute(selectedConnections, startCity, destCity){
     }
 }
 
-export { fetchStations, fetchStartEndStations, fetchConnections, checkRoute }
+async function getRandomEvents(numb_events){
+    try{
+        const response = await fetch('http://localhost:3001/api/events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                numberOfEvenets: numb_events
+            }) 
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return await response.json();
+    }
+    catch(err){
+        return {}
+    }
+
+}
+
+export { fetchStations, fetchStartEndStations, fetchConnections, checkRoute, getRandomEvents }
