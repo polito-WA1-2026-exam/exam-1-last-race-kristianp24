@@ -91,4 +91,21 @@ async function getRandomEvents(numb_events){
 
 }
 
-export { fetchStations, fetchStartEndStations, fetchConnections, checkRoute, getRandomEvents }
+async function recordScore(user_id, score){
+        const response = await fetch(`http://localhost:3001/api/users/${user_id}/record-score`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                pointsEarned: score
+            }) 
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return await response.json()
+}
+
+export { recordScore, fetchStations, fetchStartEndStations, fetchConnections, checkRoute, getRandomEvents }

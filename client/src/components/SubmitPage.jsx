@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router";
-import { getRandomEvents } from "../apis/fetches";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useLocation, useNavigate } from "react-router";
+import { getRandomEvents, recordScore } from "../apis/fetches";
 import { Container, Card, Button, ProgressBar, Alert, Badge } from "react-bootstrap";
+import UserContext from '../context/userContext.js';
 
 function SubmitPage() {
     const { segmentslength } = useParams();
@@ -9,6 +10,9 @@ function SubmitPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [coins, setCoins] = useState(20);
     const location = useLocation();
+    const user = useContext(UserContext);
+    const navigate = useNavigate();
+
 
     const stationsArray = location.state?.connections || [];
 
@@ -31,7 +35,15 @@ function SubmitPage() {
 
     const handleNextStep = () => {
         if (currentIndex >= randomEvents.length - 1) {
-            // Journey is complete
+            if (user && user.id) {
+                recordScore(user.id, coins)
+                    .then(response => {
+                        console.log("Score recorded:", response);
+                    })
+                    .catch(error => {
+                        console.error("Failed to record score:", error);
+                    });
+                }
         }
         const currentEvent = randomEvents[currentIndex];
 
@@ -111,7 +123,7 @@ function SubmitPage() {
                                 size="lg"
                                 className="w-100 shadow-sm mt-2 fw-semibold"
                             >
-                                {currentIndex === randomEvents.length - 1 ? "Finish Journey 🏁" : "Next Step ➡️"}
+                                {currentIndex === randomEvents.length - 1 ? "Finish Journey" : "Next Step"}
                             </Button>
                         </div>
                     ) : (
@@ -122,7 +134,9 @@ function SubmitPage() {
                                 <p className="text-muted mb-4">
                                     You safely navigated all hazards and arrived at the final destination with a grand total of <strong>{coins} coins</strong>.
                                 </p>
-                                <Button variant="outline-primary" size="lg" className="w-100 fw-semibold">
+                                <Button variant="outline-primary" size="lg" className="w-100 fw-semibold"
+                                    onClick={() => navigate('/leaderboard')}
+                                >
                                     See Leaderboard
                                 </Button>
                             </div>

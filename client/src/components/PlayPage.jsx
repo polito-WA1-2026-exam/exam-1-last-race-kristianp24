@@ -53,6 +53,10 @@ function PlayPage() {
     async function handleClickSubmit(ev) {
         ev.preventDefault()
         console.log(selectedConnections)
+        if (selectedConnections.length === 0) {
+            setAlert(true)
+            return
+        }
         try{
             // const response = await checkRoute(selectedConnections, startStation, endStation)
             // if (response.success){
@@ -75,6 +79,11 @@ function PlayPage() {
 
     return (
         <>
+                {alert && (
+                    <Alert variant="danger" onClose={() => setAlert(false)} dismissible className="text-center">
+                        Please select connections before submitting your route.
+                    </Alert>
+                )}
             <Container className="mt-4">
                 <Row>
                     <Col md={6}>

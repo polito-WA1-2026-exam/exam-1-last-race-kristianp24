@@ -6,7 +6,7 @@ import session from 'express-session';
 import { getStationNameToIdMap, retrieve_station, check_user_password, retrieve_connections, retrieve_stations, getNetworkGraph, findValidDestinations } from "./db_queries.js";
 import cors from "cors";
 import sqlite from "sqlite3";
-import { validateRouteWithGraph, recordScore, getRandomEvents } from "./db_queries.js";
+import { validateRouteWithGraph, recordScore, getRandomEvents, getScores } from "./db_queries.js";
 
 
 // init express
@@ -176,29 +176,19 @@ app.post('/api/verify-route', async (req, res) => {
 
 // POST /api/users/:id/record-score
 app.post('/api/users/:id/record-score', async (req, res) => {
-  try{
-    const userId = req.params.id
-    const pointsEarned = req.body.pointsEarned
+  try {
+    const userId = req.params.id;
+    const  score  = req.body.pointsEarned;
 
-    const result = await recordScore(userId, pointsEarned)
-
-    if (result && result.lastID)
-      return res.json({
-        message: "User added succesfully!"
-      })
-    else
-       return res.status(501).json({
-        message: "An error occured!",
-        error: result.error
-      })
+    // This will now wait properly and return { id, changes }
+    const result = await recordScore(userId, score); 
+    
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Backend error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-  catch(err){
-    return res.json({
-      message: "An error occured in the server!",
-      error: err
-    })
-  }
-})
+});
 
 // POST /api/events
 app.post('/api/events', async (req, res)=> {
@@ -221,6 +211,28 @@ app.post('/api/events', async (req, res)=> {
         message: "An error occured!",
         error: err
       })
+  }
+})
+
+//GET /api/scores
+app.get('/api/scores', async (req, res) => {
+  try{
+    const result = await getScores()
+    if (result.error){
+      return res.status(501).json({
+        message: "An error occured!",
+        error: result.error
+      })
+    }
+    else{
+      return res.json(result)
+    }
+  }
+  catch(err){
+    return res.status(501).json({
+      message: "An error occured!",
+      error: err
+    })
   }
 })
 

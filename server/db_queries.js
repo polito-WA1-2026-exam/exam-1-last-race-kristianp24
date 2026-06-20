@@ -246,22 +246,27 @@ async function validateRouteWithGraph(submittedRoute, assignedStart, assignedDes
   return {verdict: true, message:"The route is perfectly valid"};
 }
 
-async function recordScore(userId, score){
+async function recordScore(userId, score) {
   return new Promise((resolve, reject) => {
+    // Open the database connection
     const db = new sqlite.Database("db.db", (err) => {
-            if (err) { return reject(err); }
-        })
+      if (err) { return reject(err); }
+    });
       
-    const query = `INSERT INTO Games (userID, score) VALUES (?, ?)`
+    const query = `INSERT INTO Games (userID, score) VALUES (?, ?)`;
+    db.run(query, [userId, score], function (err) {
+      db.close();
 
-    try{
-        const result = db.run(query, [userId, score])
-        resolve(result)
-    }
-    catch (err){
-      reject({error: err})
-    }
-  })
+      if (err) {
+        return reject({ error: err.message });
+      }
+
+      resolve({
+        lastId: this.lastID,
+        changes: this.changes
+      });
+    });
+  });
 }
 
 async function getRandomEvents(numb_events){
@@ -294,4 +299,34 @@ async function getRandomEvents(numb_events){
   })
 }
 
-export { getRandomEvents, recordScore,getStationNameToIdMap, validateRouteWithGraph, check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }
+async function getScores(){
+  return new Promise((resolve, reject) => {
+    const db = new sqlite.Database("db.db", (err) => {
+
+            if (err) { return reject(err); }
+        })
+
+    const query = `
+        SELECT u.id as userID, u.name as username, g.score
+        FROM Games g
+        JOIN users u ON g.userID = u.id
+        ORDER BY g.score DESC
+    `;
+
+    db.all(query, [], (err, rows) => {
+      db.close()
+      if (err) {
+        reject({error: err})
+      }
+      else{
+        let scores = []
+        for(const row of rows){
+          scores.push({userID: row.userID, username: row.username, score: row.score})
+        }
+        resolve(scores)
+      }
+    })
+  })
+}
+
+export { getScores, getRandomEvents, recordScore,getStationNameToIdMap, validateRouteWithGraph, check_user_password, retrieve_stations, retrieve_connections, findValidDestinations, getNetworkGraph, retrieve_station }

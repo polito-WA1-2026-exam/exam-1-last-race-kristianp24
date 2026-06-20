@@ -9,6 +9,7 @@ import GameRulesCard from './components/RulesDisplayer';
 import SetupPage from './components/SetupPage';
 import PlayPage from './components/PlayPage';
 import SubmitPage from './components/SubmitPage';
+import Leaderboard from './components/Leaderboard';
 
 function App() {
   const [user, setUser] = useState()
@@ -27,6 +28,7 @@ function App() {
              <Route path='setup' element={<SetupPage />} />
              <Route path='playGame' element={<PlayPage />}></Route>
              <Route path='submit/:segmentslength' element={<SubmitPage />} />
+             <Route path='leaderboard' element={<Leaderboard />} />
           </Route>
 
         <Route path = '/login' element={<LoginForm userSetter = {setLogedInUser} />}></Route>
