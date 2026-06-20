@@ -20,7 +20,6 @@ function LoginForm(props) {
     try { 
       const user = await doLogin(email, pass);
       props.userSetter(user);
-      console.log(user);
       navigate('/setup');
     } catch(err) {
       setAlert(true);

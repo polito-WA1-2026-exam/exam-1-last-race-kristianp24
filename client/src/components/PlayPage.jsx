@@ -6,10 +6,12 @@ import Card from "react-bootstrap/Card";
 import NetworkMap from "./NetowrkMap";
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useEffect, useState } from "react";
-import { fetchConnections, fetchStartEndStations, checkRoute } from "../apis/fetches";
+import { fetchConnections, fetchStartEndStations, checkRoute, recordScore } from "../apis/fetches";
 import Alert from 'react-bootstrap/Alert';
 import { useNavigate } from "react-router";
-
+import { useContext } from "react";
+import UserContext from '../context/userContext.js';
+import {StopwatchFill} from 'react-bootstrap-icons';
 
 function PlayPage() {
     const [connections, setConnections] = useState([])
@@ -18,8 +20,13 @@ function PlayPage() {
     const [endStation, setEndStation] = useState("Tap to Start")
     const [hideButton, setHideButton] = useState(false)
     const [alert, setAlert] = useState(false)
-    const navigate = useNavigate()
+    const [alertMessage, setAlertMessage] = useState("")
+    
+    const [timer, setTimer] = useState(90)
+    const [isTimerActive, setIsTimerActive] = useState(false)
 
+    const navigate = useNavigate()
+    const user = useContext(UserContext);
 
     useEffect(() => {
         const loadConnections = async () => {
@@ -29,6 +36,77 @@ function PlayPage() {
         loadConnections();
     }, [])
 
+    
+    useEffect(() => {
+        let interval = null;
+
+        if (isTimerActive && timer > 0) {
+            interval = setInterval(() => {
+                setTimer((prevTime) => prevTime - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            clearInterval(interval);
+            setIsTimerActive(false);
+            handleTimeOut(); 
+        }
+
+        return () => clearInterval(interval);
+    }, [isTimerActive, timer, selectedConnections, startStation, endStation]);
+
+    async function executeRouteSubmission(isTimeout = false) {
+    if (selectedConnections.length === 0) {
+        setAlert(true);
+        setAlertMessage(
+            isTimeout 
+                ? "Time is up! You didn't select any connections." 
+                : "Please select at least one connection before submitting your route."
+        );
+        if (!isTimeout) return; 
+    }
+    
+    if (!startStation || !endStation || startStation === "Tap to Start" || endStation === "Tap to Start") {
+        setAlert(true);
+        setAlertMessage(
+            isTimeout 
+                ? "Time is up! Your start or end stations were not set." 
+                : "Please ensure that both start and end stations are set before submitting your route."
+        );
+        if (!isTimeout) return;
+    }
+
+    try {
+        const shouldCheckRoute = !isTimeout && selectedConnections.length > 0;
+        const response = shouldCheckRoute 
+            ? await checkRoute(selectedConnections, startStation, endStation)
+            : { success: false, message: "Time's up! You lost your coins. Try again." };
+
+        if (response.success) {
+            setIsTimerActive(false);
+            navigate(`/submit/${selectedConnections.length}`, { 
+                state: { connections: selectedConnections } 
+            });                 
+        } else {
+            setAlertMessage(response.message || "Invalid route. You lost all your coins. Please try again.");
+            setAlert(true);
+            setStartStation("Tap to Start");
+            setEndStation("Tap to End");
+            setSelectedConnections([]);
+            setHideButton(false);
+            
+            setIsTimerActive(false);
+            setTimer(90);
+            
+            await recordScore(user.id, 0);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+    const handleTimeOut = () => {
+         executeRouteSubmission(true);
+    };
+
     async function handleClickStart(ev) {
         ev.preventDefault()
         try {
@@ -36,6 +114,9 @@ function PlayPage() {
             setStartStation(response.nameStartStation)
             setEndStation(response.nameEndStation)
             setHideButton(true)
+            
+            setTimer(90)
+            setIsTimerActive(true)
         }
         catch (err) {
             console.log(err)
@@ -52,45 +133,30 @@ function PlayPage() {
 
     async function handleClickSubmit(ev) {
         ev.preventDefault()
-        console.log(selectedConnections)
-        if (selectedConnections.length === 0) {
-            setAlert(true)
-            return
-        }
-        try{
-            // const response = await checkRoute(selectedConnections, startStation, endStation)
-            // if (response.success){
-            //     navigate(`/submit/${selectedConnections.length}`)            
-            
-            // }
-           navigate(`/submit/${selectedConnections.length}`, { 
-                state: { connections: selectedConnections } 
-            });      
-        
-            // else{
-            //     setAlert(true)
-            // }
-        }
-        catch(err){
-
-        }
+        await executeRouteSubmission(false); 
     }
-
 
     return (
         <>
-                {alert && (
-                    <Alert variant="danger" onClose={() => setAlert(false)} dismissible className="text-center">
-                        Please select connections before submitting your route.
-                    </Alert>
-                )}
+            {alert && (
+                <Alert variant="danger" onClose={() => setAlert(false)} dismissible className="text-center">
+                    {alertMessage || "Please select at least one connection and ensure that the start and end stations are set."}
+                </Alert>
+            )}
             <Container className="mt-4">
                 <Row>
                     <Col md={6}>
                         <NetworkMap lines={false} />
                     </Col>
-
                     <Col md={6}>
+                        {isTimerActive && (
+                            <div className="text-center mb-2">
+                                <span className={`fs-4 fw-bold ${timer <= 15 ? 'text-danger animate-pulse' : 'text-secondary'}`}>
+                                    <StopwatchFill></StopwatchFill> Time Remaining: {timer}s
+                                </span>
+                            </div>
+                        )}
+
                         <Card className="p-3 shadow-sm border-0 bg-light text-center ms-auto mb-3" style={{ maxWidth: "600px" }}>
                             <Card.Body className="p-2">
                                 <Row className="align-items-center">
@@ -177,4 +243,4 @@ function PlayPage() {
     )
 }
 
-export default PlayPage; 
+export default PlayPage;

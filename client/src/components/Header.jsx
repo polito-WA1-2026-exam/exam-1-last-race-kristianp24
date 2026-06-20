@@ -9,10 +9,12 @@ import { useContext, useState } from 'react';
 import UserContext from '../context/userContext.js';
 import { TrainLightrailFront } from 'react-bootstrap-icons';
 import { Outlet } from 'react-router';
+import {doLogout} from '../apis/auth.js';
+
 
 function Header(){
 
-    const user = useContext(UserContext)
+    const {user, setUser} = useContext(UserContext)
     const navigate = useNavigate()
 
     
@@ -20,22 +22,34 @@ function Header(){
         navigate('/login')
     }
 
+    function handleLogout(){
+        doLogout()
+            .then(() => {
+                setUser({id: null, name: null, email: null, surname: null})
+                navigate('/')
+            }   )
+    }
+
     return (
         <>
-        <Navbar bg="primary" data-bs-theme="dark">
-        <Container>
-          <Navbar.Brand > <TrainLightrailFront /> Milan Rail Race </Navbar.Brand>
-          <Nav className="ms-auto">
-            {user?.name != null ? <Navbar.Text> Hey {user.name} let's play </Navbar.Text> : 
-                <Nav.Link  onClick={goToLogin}> Go to Login </Nav.Link>
-            }
-          </Nav>
-        </Container>
-      </Navbar>
-            
-            <Outlet />
-        
-        </>
+  <Navbar bg="primary" data-bs-theme="dark">
+    <Container>
+      <Navbar.Brand> <TrainLightrailFront /> Milan Rail Race </Navbar.Brand>
+      <Nav className="ms-auto">
+        {user?.name != null ? (
+          <>
+            <Navbar.Text className="me-3"> Hey {user.name} let's play </Navbar.Text>  
+            <Nav.Link onClick={handleLogout}> Log Out </Nav.Link>
+          </>
+        ) : (
+          <Nav.Link onClick={goToLogin}> Go to Login </Nav.Link>
+        )}
+      </Nav>
+    </Container>
+
+  </Navbar>
+    <Outlet />
+</>
     )
 
 }

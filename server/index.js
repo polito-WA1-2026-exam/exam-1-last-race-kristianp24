@@ -77,7 +77,7 @@ app.delete("/api/sessions/current", (req, res) => {
 });
 
 // GET /api/stations
-app.get("/api/stations", async (req, res) => {
+app.get("/api/stations", [isLoggedIn], async (req, res) => {
   try {
     const stations = await retrieve_stations();
     
@@ -88,7 +88,7 @@ app.get("/api/stations", async (req, res) => {
 });
 
 // GET /api/connections
-app.get("/api/connections", async(req, res) => {
+app.get("/api/connections", [isLoggedIn], async(req, res) => {
   try{
       const connections = await retrieve_connections()
       return res.json(connections)
@@ -100,7 +100,7 @@ app.get("/api/connections", async(req, res) => {
 })
 
 // GET /api/start-game
-app.get('/api/start-game', async (req, res) => {
+app.get('/api/start-game', [isLoggedIn], async (req, res) => {
   try {
     const graph = await getNetworkGraph();
     const stations = Object.keys(graph);
@@ -110,7 +110,6 @@ app.get('/api/start-game', async (req, res) => {
       return res.status(500).json({ error: "Network graph is too small." });
     }
 
-    console.log(graph)
     let startStation = "";
     let validDestinations = [];
 
@@ -143,7 +142,7 @@ app.get('/api/start-game', async (req, res) => {
 });
 
 // POST /api/verify-route
-app.post('/api/verify-route', async (req, res) => {
+app.post('/api/verify-route', [isLoggedIn], async (req, res) => {
   try {
     const { submittedRoute, assignedStart, assignedDest } = req.body;
     
@@ -175,7 +174,7 @@ app.post('/api/verify-route', async (req, res) => {
 });
 
 // POST /api/users/:id/record-score
-app.post('/api/users/:id/record-score', async (req, res) => {
+app.post('/api/users/:id/record-score', [isLoggedIn], async (req, res) => {
   try {
     const userId = req.params.id;
     const  score  = req.body.pointsEarned;
@@ -191,7 +190,7 @@ app.post('/api/users/:id/record-score', async (req, res) => {
 });
 
 // POST /api/events
-app.post('/api/events', async (req, res)=> {
+app.post('/api/events', [isLoggedIn], async (req, res)=> {
   try{
     const numberOfEvenets = req.body.numberOfEvenets
     const result = await getRandomEvents(numberOfEvenets)
@@ -215,7 +214,7 @@ app.post('/api/events', async (req, res)=> {
 })
 
 //GET /api/scores
-app.get('/api/scores', async (req, res) => {
+app.get('/api/scores', [isLoggedIn], async (req, res) => {
   try{
     const result = await getScores()
     if (result.error){

@@ -13,12 +13,25 @@ async function doLogin(username, password) {
 
     if (response.ok) {
         const user = await response.json()
-        console.log(user)
         return user
     } else {
         throw new Error("Login failed")
     }
 }
 
+async function doLogout() {
+    const response = await fetch('http://localhost:3001/api/sessions/current', {
+        method: 'DELETE',
+        credentials: 'include'
+    })
+    if (!response.ok) {
+        throw new Error("Logout failed")
+    }
+    else{
+        return true
+    }
 
-export {doLogin}
+}
+
+
+export {doLogin, doLogout}

@@ -213,10 +213,10 @@ async function validateRouteWithGraph(submittedRoute, assignedStart, assignedDes
   }
 
   if (parsedSegments[0].idA !== startId) {
-    return {verdict: false, message: `Validation Failed: Must start at assigned station ID ${startId}`};
+    return {verdict: false, message: `Validation Failed: Must start at assigned station. You got 0 coins.`};
   }
   if (parsedSegments[parsedSegments.length - 1].idB !== destId) {
-    return {verdict: false, message: `Validation Failed: Must end at assigned station ID ${destId}`};
+    return {verdict: false, message: `Validation Failed: Must end at assigned station. You got 0 coins.`};
   }
 
   const usedSegments = new Set();

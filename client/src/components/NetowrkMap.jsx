@@ -16,8 +16,8 @@ function NetworkMap(props) {
   const [linePaths, setLinePaths] = useState([]);
   const [alert, setAlert] = useState(false)
 
-  const showLines = props && props.lines !== undefined ? props.lines : true;  
- 
+  const showLines = props && props.lines !== undefined ? props.lines : true;
+
   useEffect(() => {
     const loadMapData = async () => {
       const data = await fetchStations();
@@ -25,7 +25,7 @@ function NetworkMap(props) {
       if (data && Object.keys(data).length > 0) {
         setStations(data);
       }
-      else{
+      else {
 
       }
     };
@@ -34,20 +34,20 @@ function NetworkMap(props) {
     setLinePaths(staticlinePaths)
   }, []);
 
-  if (alert){
-    return(
-        <div className="text-center mb-4">
-             
-              <Alert key='danger' variant="danger" className="py-2 small"> 
-                An error occured loading the map!
-              </Alert>            
-        </div>
+  if (alert) {
+    return (
+      <div className="text-center mb-4">
+
+        <Alert key='danger' variant="danger" className="py-2 small">
+          An error occured loading the map!
+        </Alert>
+      </div>
     )
   }
 
   return (
     <div style={styles.container}>
-      
+
       <h2 style={styles.title}>Metro Network Map</h2>
 
       <svg viewBox="0 0 800 620" style={styles.svg}>
@@ -66,13 +66,13 @@ function NetworkMap(props) {
         </g>
 
         <g id="stations">
-          {Object.values(stations).map((station) => {
+          {Object.values(stations || {}).map((station, index) => {
             const isLeftColumn = station.align === 'end';
             const textX = isLeftColumn ? station.cx - 15 : station.cx + 15;
             const textAnchor = isLeftColumn ? 'end' : 'start';
 
             return (
-              <g key={station.id}>
+              <g key={station.id || station.name || index}>
                 <circle
                   cx={station.cx}
                   cy={station.cy}

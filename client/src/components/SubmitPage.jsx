@@ -36,6 +36,9 @@ function SubmitPage() {
     const handleNextStep = () => {
         if (currentIndex >= randomEvents.length - 1) {
             if (user && user.id) {
+                if (coins < 0){
+                    setCoins(0)
+                }
                 recordScore(user.id, coins)
                     .then(response => {
                         console.log("Score recorded:", response);
@@ -129,7 +132,6 @@ function SubmitPage() {
                     ) : (
                         randomEvents.length > 0 && (
                             <div className="py-3">
-                                <div className="display-4 mb-3">🎉</div>
                                 <h3 className="fw-bold text-success mb-2">Journey Complete!</h3>
                                 <p className="text-muted mb-4">
                                     You safely navigated all hazards and arrived at the final destination with a grand total of <strong>{coins} coins</strong>.

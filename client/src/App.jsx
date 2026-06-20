@@ -21,7 +21,7 @@ function App() {
 
   return (
     <>
-      <UserContext.Provider value = {user}>
+      <UserContext.Provider value={{ user, setUser }}>
         <Routes>
           <Route path='/' element={<Header />}>
              <Route index element={<GameRulesCard />} />
