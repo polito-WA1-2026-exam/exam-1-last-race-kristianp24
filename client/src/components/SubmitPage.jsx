@@ -10,7 +10,7 @@ function SubmitPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [coins, setCoins] = useState(20);
     const location = useLocation();
-    const user = useContext(UserContext);
+    const {user} = useContext(UserContext);
     const navigate = useNavigate();
 
 
@@ -34,28 +34,31 @@ function SubmitPage() {
     }, [segmentslength]);
 
     const handleNextStep = () => {
-        if (currentIndex >= randomEvents.length - 1) {
-            if (user && user.id) {
-                if (coins < 0){
-                    setCoins(0)
-                }
-                recordScore(user.id, coins)
-                    .then(response => {
-                        console.log("Score recorded:", response);
-                    })
-                    .catch(error => {
-                        console.error("Failed to record score:", error);
-                    });
-                }
-        }
-        const currentEvent = randomEvents[currentIndex];
+    const currentEvent = randomEvents[currentIndex];
+    let updatedCoins = coins;
 
-        if (currentEvent && typeof currentEvent.effect === 'number') {
-            setCoins(prevCoins => prevCoins + currentEvent.effect);
+    if (currentEvent && typeof currentEvent.effect === 'number') {
+        updatedCoins = coins + currentEvent.effect;
+        if (updatedCoins < 0) {
+            updatedCoins = 0;
         }
+        setCoins(updatedCoins); 
+    }
 
-        setCurrentIndex(prevIndex => prevIndex + 1);
-    };
+    if (currentIndex === randomEvents.length - 1) {
+        if (user && user.id) {
+            recordScore(user.id, updatedCoins)
+                .then(response => {
+                    console.log("Score recorded:", response);
+                })
+                .catch(error => {
+                    console.error("Failed to record score:", error);
+                });
+        }
+    }
+    setCurrentIndex(prevIndex => prevIndex + 1);
+};
+
 
     const currentEvent = randomEvents[currentIndex];
 
@@ -81,23 +84,12 @@ function SubmitPage() {
                         <h2 className="display-6 fw-bold text-warning m-0"> {coins} <span className="fs-6 text-muted">coins</span></h2>
                     </div>
 
-                    {randomEvents.length > 0 && (
-                        <div className="mb-4">
-                            <div className="d-flex justify-content-between small text-muted mb-1">
-                                <span>Progress</span>
-                                <span>{progressPercentage}%</span>
-                            </div>
-                            <ProgressBar animated now={progressPercentage} variant="success" style={{ height: "10px" }} />
-                        </div>
-                    )}
-
                     {randomEvents.length > 0 && !isJourneyComplete && currentEvent ? (
                         <div>
                             <Badge bg="secondary" className="mb-2 px-3 py-2 fs-6 rounded-pill">
                                 Step {currentIndex + 1} of {randomEvents.length}
                             </Badge>
 
-                            {/* Added Segment Info Display */}
                             {currentSegment && (
                                 <div className="my-3 fw-bold text-primary fs-5">
                                     Current Segment: <span className="text-dark d-block mt-1">{currentSegment}</span>

@@ -129,10 +129,7 @@ app.get('/api/start-game', [isLoggedIn], async (req, res) => {
 
     return res.json({
       nameStartStation,
-      nameEndStation,
-      startStation,
-      destinationStation,
-      initialCoins: 20 
+      nameEndStation 
     });
 
   } catch (error) {
@@ -179,7 +176,6 @@ app.post('/api/users/:id/record-score', [isLoggedIn], async (req, res) => {
     const userId = req.params.id;
     const  score  = req.body.pointsEarned;
 
-    // This will now wait properly and return { id, changes }
     const result = await recordScore(userId, score); 
     
     res.status(200).json({ success: true, data: result });

@@ -26,7 +26,7 @@ function NetworkMap(props) {
         setStations(data);
       }
       else {
-
+        console.error("Failed to load stations data.");
       }
     };
 

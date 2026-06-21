@@ -7,7 +7,9 @@ const Leaderboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/scores')
+    fetch('http://localhost:3001/api/scores', {
+      credentials: 'include'
+    })
       .then(response => response.json())
       .then(data => setScores(data))
       .catch(err => console.error("Error fetching data:", err));

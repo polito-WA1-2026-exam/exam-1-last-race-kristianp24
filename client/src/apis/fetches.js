@@ -2,7 +2,7 @@
 
 async function fetchStations() {
     try {
-        const response = await fetch('http://localhost:3001/api/stations');
+        const response = await fetch('http://localhost:3001/api/stations', {credentials: 'include'});
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -18,7 +18,7 @@ async function fetchStations() {
 
 async function fetchConnections(){
     try{
-        const response = await fetch('http://localhost:3001/api/connections');
+        const response = await fetch('http://localhost:3001/api/connections', {credentials: 'include'});
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -32,7 +32,7 @@ async function fetchConnections(){
 
 async function fetchStartEndStations(){
     try{
-        const response = await fetch('http://localhost:3001/api/start-game');
+        const response = await fetch('http://localhost:3001/api/start-game', {credentials: 'include'});
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -55,7 +55,8 @@ async function checkRoute(selectedConnections, startCity, destCity){
                 submittedRoute: selectedConnections, 
                 assignedStart: startCity, 
                 assignedDest: destCity 
-            }) 
+            }),
+             credentials: 'include'
         });
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -78,7 +79,8 @@ async function getRandomEvents(numb_events){
             },
             body: JSON.stringify({ 
                 numberOfEvenets: numb_events
-            }) 
+            }),
+            credentials: 'include'
         });
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -92,20 +94,21 @@ async function getRandomEvents(numb_events){
 }
 
 async function recordScore(user_id, score){
-        const response = await fetch(`http://localhost:3001/api/users/${user_id}/record-score`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                pointsEarned: score
-            }) 
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+    const response = await fetch(`http://localhost:3001/api/users/${user_id}/record-score`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            pointsEarned: score
+        }), 
+        credentials: 'include' 
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
-        return await response.json()
+    return await response.json();
 }
-
 export { recordScore, fetchStations, fetchStartEndStations, fetchConnections, checkRoute, getRandomEvents }
