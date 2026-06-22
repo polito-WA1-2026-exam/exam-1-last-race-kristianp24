@@ -39,7 +39,9 @@ function Header(){
         {user?.name != null ? (
           <>
             <Navbar.Text className="me-3"> Hey {user.name} let's play </Navbar.Text>  
+            <Nav.Link onClick={() => navigate('/leaderboard')}> Go to Leaderboard </Nav.Link>
             <Nav.Link onClick={handleLogout}> Log Out </Nav.Link>
+          
           </>
         ) : (
           <Nav.Link onClick={goToLogin}> Go to Login </Nav.Link>

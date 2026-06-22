@@ -29,7 +29,7 @@ const Leaderboard = () => {
         <Card.Body>
           <div className="text-center mb-4">
             <h2 className="fw-bold text-dark mb-1"> Global Leaderboard</h2>
-            <p className="text-muted small">Top players routing the network efficiently</p>
+            <p className="text-muted small">Top players with their best scores routing the network efficiently</p>
           </div>
 
           <div className="table-responsive rounded border">
@@ -77,7 +77,7 @@ const Leaderboard = () => {
               className="fw-bold shadow-sm"
               onClick={() => navigate('/playGame')} 
             >
-              Play Again
+              Back to Game
             </Button>
           </div>
         </Card.Body>
