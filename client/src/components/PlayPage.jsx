@@ -16,8 +16,8 @@ import {StopwatchFill} from 'react-bootstrap-icons';
 function PlayPage() {
     const [connections, setConnections] = useState([])
     const [selectedConnections, setSelectedConnections] = useState([])
-    const [startStation, setStartStation] = useState("Tap to Start")
-    const [endStation, setEndStation] = useState("Tap to Start")
+    const [startStation, setStartStation] = useState("Press Start Button")
+    const [endStation, setEndStation] = useState("Press Start Button")
     const [hideButton, setHideButton] = useState(false)
     const [alert, setAlert] = useState(false)
     const [alertMessage, setAlertMessage] = useState("")
@@ -64,7 +64,7 @@ function PlayPage() {
         if (!isTimeout) return; 
     }
     
-    if (!startStation || !endStation || startStation === "Tap to Start" || endStation === "Tap to Start") {
+    if (!startStation || !endStation || startStation === "Press Start Button" || endStation === "Press Start Button") {
         setAlert(true);
         setAlertMessage(
             isTimeout 
@@ -88,8 +88,8 @@ function PlayPage() {
         } else {
             setAlertMessage(response.message || "Invalid route. You lost all your coins. Please try again.");
             setAlert(true);
-            setStartStation("Tap to Start");
-            setEndStation("Tap to End");
+            setStartStation("Press Start Button");
+            setEndStation("Press Start Button");
             setSelectedConnections([]);
             setHideButton(false);
             
